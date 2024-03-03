@@ -1,42 +1,55 @@
 
-const pokemon=document.getElementById('pokemon-select');
-const boton=document.getElementById('get-pokemon');
-const contenedorResultado=document.getElementById("resultado");
-const url='https://pokeapi.co/api/v2/pokemon/';
-//`document.getElementById('pokemon-select').value`
+const button = document.getElementById('get-pokemon')
 
+const select = document.getElementById('pokemon-select')
 
+const pokemon = document.querySelector('.pokemon')
 
+const baseURL = 'https://pokeapi.co/api/v2/pokemon/'
 
-boton.addEventListener('click',function(){
-    if ( pokemon.value==='bulbasaur'){
+button.addEventListener('click', function () {
+	const PokemonSeleccion = select.value
 
-    fetch (url+'bulbasaur')
-        .then((response) => {
-          if(!response.ok) {
-            throw new Error ("Error. No se puede acceder"); 
-          }
-          return response.json();
-        })
-        .then((data)=>{
-            data.results.forEach(element => {   
-                const contenedorDiv = document.createElement ("div"); 
-                const nombrePokemon = document.createElement ("li");
-                nombrePokemon.innerText = `${element.name}`;
-                contenedorDiv.appendChild(nombrePokemon);
-            });
-            
+	getPokemon(PokemonSeleccion)
+})
 
+function getPokemon(pokemonName) {
+	const endpoint = baseURL + pokemonName
 
+	fetch(endpoint)
+		.then((res) => res.json())
+		.then((data) => {
+			const pokemon = {
+				name: data.name,
+				image: data.sprites.front_default,
+				types: data.types.map((typeObj) => typeObj.type.name),
+				weight: data.weight,
+				height: 7,
+			}
+			renderPokemon(pokemon)
+		})
+		.catch((err) => alert(`Error al encontrar el pokemon "${pokemonName}"`))
+}
 
-           contenedorResultado.innerHTML=(`${data.name}`);
-           contenedorResultado.innerHTML=(`${data.width}`);
-           contenedorResultado.innerHTML=(`${data.height}`);
-        
-        })
-    }
+function renderPokemon(pokemonDetails) {
+	console.log(pokemonDetails)
+	pokemon.innerHTML = ''
 
+	pokemon.innerHTML += `
+    <h2 class="pokemon__title">${pokemonDetails.name}</h2>
 
+		<ul class="pokemon__types">
+			${pokemonDetails.types
+				.map((type) => `<li class="pokemon__type ${type}">${type}</li>`)
+				.join('')}	
+		</ul>
 
-});
-
+    <img class="pokemon__image" src="${
+			pokemonDetails.image
+		}" alt="pokemonDetails.name}" />
+    <ul class="pokemon__details">
+      <li><b>Peso:</b> ${pokemonDetails.weight}</li>
+      <li><b>Altura:</b> ${pokemonDetails.height}</li>
+    </ul>
+  `
+}
